@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Techzen Academy - DevOps Fundamentals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0a0f1d;
+            --bg-card: rgba(16, 24, 48, 0.75);
+            --border-glow: rgba(56, 189, 248, 0.25);
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.4);
+            --accent-green: #10b981;
+            --accent-green-glow: rgba(16, 185, 129, 0.35);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 820px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(56, 189, 248, 0.1);
+            overflow: hidden;
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .header-bar {
+            background: rgba(15, 23, 42, 0.6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #f59e0b; }
+        .dot-green { background: #10b981; }
+
+        .header-title {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .main-content {
+            padding: 40px 36px;
+        }
+
+        .status-badge-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid var(--accent-green);
+            padding: 8px 18px;
+            border-radius: 9999px;
+            box-shadow: 0 0 20px var(--accent-green-glow);
+            margin-bottom: 24px;
+        }
+
+        .pulse-indicator {
+            width: 10px;
+            height: 10px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .pulse-indicator::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            opacity: 0.75;
+            animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        .status-badge-text {
+            color: #34d399;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.25;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #ffffff 40%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .grid-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .info-card {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.15);
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .info-value {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .highlight-blue { color: var(--primary); }
+        .highlight-green { color: var(--accent-green); }
+
+        .congrats-banner {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 14px;
+            padding: 22px 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .congrats-icon {
+            font-size: 28px;
+            line-height: 1;
+        }
+
+        .congrats-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .congrats-desc {
+            font-size: 13.5px;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+
+        .footer {
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        @keyframes ping {
+            75%, 100% {
+                transform: scale(2.4);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .main-content {
+                padding: 24px 20px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .grid-info {
+                grid-template-columns: 1fr 1fr;
+            }
+            .footer {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-bar">
+            <div class="terminal-dots">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+            </div>
+            <div class="header-title">techzen-pipeline :: ci-cd-runner</div>
+            <div style="width: 52px;"></div>
+        </div>
+
+        <div class="main-content">
+            <div class="status-badge-wrapper">
+                <span class="pulse-indicator"></span>
+                <span class="status-badge-text">Deployment Status: SUCCESS (Automated by Jenkins CI/CD)</span>
+            </div>
+
+            <h1>Techzen Academy - DevOps Fundamentals</h1>
+            <p class="subtitle">
+                Ứng dụng mẫu phục vụ bài thực hành thiết lập Declarative Pipeline tự động hóa từ bước Checkout mã nguồn, Build Docker Image cho đến Deploy trên VPS.
+            </p>
+
+            <div class="grid-info">
+                <div class="info-card">
+                    <div class="info-label">App Name</div>
+                    <div class="info-value highlight-blue">techzen-app</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Version</div>
+                    <div class="info-value">v1.0.0</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Environment</div>
+                    <div class="info-value">Production / VirtualBox</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Port Map</div>
+                    <div class="info-value highlight-green">8081 &rarr; 80</div>
+                </div>
+            </div>
+
+            <div class="congrats-banner">
+                <div class="congrats-icon">&#127881;</div>
+                <div>
+                    <div class="congrats-title">Chúc mừng bạn đã hoàn thành xuất sắc luồng CI/CD!</div>
+                    <div class="congrats-desc">
+                        Toàn bộ quy trình từ Git commit, Jenkins trigger, đóng gói Docker container và phát hành dịch vụ đã diễn ra hoàn toàn tự động theo chuẩn DevOps thực chiến.
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <span>Course: DevOps Engineer Master</span>
+                <span>Powered by Jenkins &amp; Docker Engine</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
