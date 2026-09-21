@@ -6,12 +6,10 @@ pipeline {
         DOCKER_PORT  = '8081'
         SSH_CRED_ID  = 'sshkey'
 
-        // Thông số kết nối trực tiếp Host qua mạng Docker bridge
         SSH_HOST     = '172.19.0.1'
         SSH_PORT     = '22'
         SSH_USER     = 'academy'
 
-        // Đường dẫn thư mục chứa docker-compose trên server
         TARGET_DIR   = '/home/academy/docker/database'
     }
 
@@ -26,14 +24,14 @@ pipeline {
         stage('Deploy via SSH') {
             steps {
                 echo "===> [STAGE 2] SSH vào Host và Triển khai Docker Compose trên Port: ${DOCKER_PORT}..."
-                sshagent([SSH_CRED_ID]) {
+                // Sử dụng withCredentials lấy trực tiếp file private key
+                withCredentials([sshUserPrivateKey(credentialsId: env.SSH_CRED_ID, keyFileVariable: 'SSH_KEY')]) {
                     sh '''
-                        SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p ${SSH_PORT}"
+                        SSH_OPTS="-i ${SSH_KEY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p ${SSH_PORT}"
 
                         ssh ${SSH_OPTS} ${SSH_USER}@${SSH_HOST} "
-                            set -e
                             cd ${TARGET_DIR}
-                            echo '===> Đang hạ container cũ...'
+                            echo '===> Đang dừng container cũ...'
                             docker compose down || true
                             echo '===> Đang build và chạy container mới...'
                             docker compose up -d --build
@@ -46,9 +44,9 @@ pipeline {
         stage('Health Check via SSH') {
             steps {
                 echo "===> [STAGE 3] Kiểm tra trạng thái hoạt động của Container..."
-                sshagent([SSH_CRED_ID]) {
+                withCredentials([sshUserPrivateKey(credentialsId: env.SSH_CRED_ID, keyFileVariable: 'SSH_KEY')]) {
                     sh '''
-                        SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p ${SSH_PORT}"
+                        SSH_OPTS="-i ${SSH_KEY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p ${SSH_PORT}"
 
                         ssh ${SSH_OPTS} ${SSH_USER}@${SSH_HOST} "
                             docker ps --filter 'status=running'
@@ -62,7 +60,7 @@ pipeline {
     post {
         success {
             echo "🚀 [DEPLOY SUCCESS] Ứng dụng đã được triển khai tự động thành công!"
-            echo "👉 Truy cập tại: http://localhost:${DOCKER_PORT}"
+            echo "👉 Truy cập ngay tại: http://<IP_VPS>:${DOCKER_PORT}"
         }
         failure {
             echo "❌ [DEPLOY FAILED] Pipeline thất bại! Vui lòng kiểm tra Console Output."
